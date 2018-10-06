@@ -61,8 +61,16 @@ namespace RawPrint
 
             if (printer_name.Length > 0)
             {
-                //TODO: send data to printer
-                return print_data;
+                //send data to printer
+                bool success = RawPrinterHelper.SendStringToPrinter(printer_name, print_data);
+                if (success)
+                {
+                    return print_data;
+                }
+                else
+                {
+                    return "ERROR SENDING DATA TO PRINTER";
+                }
             }
             
             return GetPrinters();
