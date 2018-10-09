@@ -17,7 +17,11 @@
             <select class="printers"></select>
         </li>
         <li>
-            Send RAW Data to Printer <button class="sample-data" type="button">EPL</button> <button class="sample-data" type="button">SPBL</button> <button class="sample-data" type="button">SPBL (Non-Standard)</button> <button class="sample-data" type="button">ZPL</button>
+            Send RAW Data to Printer 
+            <button class="sample-data" type="button">EPL</button> 
+            <button class="sample-data" type="button">SBPL</button> 
+            <button class="sample-data" type="button">SBPL (Non-Standard)</button> 
+            <button class="sample-data" type="button">ZPL</button>
             <br />
             <textarea class="print-data"></textarea>
             <br />
@@ -66,10 +70,10 @@
                     case 'EPL':
                         document.querySelector('textarea.print-data').innerText = 'N\nA100,100,0,3,1,1,N,"HELLO WORLD"\nP1,1';
                         break;
-                    case 'SPBL':
+                    case 'SBPL':
                         document.querySelector('textarea.print-data').innerText = '<A><H>100<V>100<M>HELLO WORLD<Q>1<Z>';
                         break;
-                    case 'SPBL (Non-Standard)':
+                    case 'SBPL (Non-Standard)':
                         document.querySelector('textarea.print-data').innerText = '^A^H100^V100^MHELLO WORLD^Q1^Z';
                         break;
                     case 'ZPL':
