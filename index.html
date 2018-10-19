@@ -2,30 +2,44 @@
 
 <html>
 <head>
-    <meta charset="utf-8" />
     <title>RAW Print Testing</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/w3.css"/>
+    <style>
+        .get-printers-error-message {
+            display:none;
+            color:Red;
+        }
+
+        .w3-button:focus {
+            background-color:grey;
+        }
+    </style>
 </head>
 <body>
-    <h1>RAW Print Testing</h1>
-    <ol>
+    <div clas="w3-container">
+        <h1>RAW Print Testing</h1>
+    </div>
+    <ol class="w3-container w3-margin w3-ol">
         <li>
             <a href="https://github.com/trehoffman/RawPrint/releases/tag/1.0">Download</a> & Install RAW Print
         </li>
         <li>
-            Select Printer <button type="button" onclick="getPrinters();">Refresh</button>
-            <br />
-            <select class="printers"></select>
+            Select Printer <button type="button" class="w3-button" onclick="getPrinters();">Refresh</button>
+            <div class="get-printers-error-message">Error retrieving local printers.  RAW Print might not be installed or running.</div>
+            <select class="printers w3-select w3-border"></select>
         </li>
         <li>
             Send RAW Data to Printer 
-            <button class="sample-data" type="button">EPL</button> 
-            <button class="sample-data" type="button">SBPL</button> 
-            <button class="sample-data" type="button">SBPL (Non-Standard)</button> 
-            <button class="sample-data" type="button">ZPL</button>
-            <br />
-            <textarea class="print-data"></textarea>
-            <br />
-            <button type="button" onclick="send();">Send</button>
+            <div>
+                <button class="sample-data w3-button" type="button">EPL</button> 
+                <button class="sample-data w3-button" type="button">SBPL</button> 
+                <button class="sample-data w3-button" type="button">SBPL (Non-Standard)</button> 
+                <button class="sample-data w3-button" type="button">ZPL</button>
+            </div>
+            <textarea class="print-data w3-input w3-border" rows="5"></textarea>
+            <button type="button" class="w3-button w3-block w3-margin-top" onclick="send();">Send</button>
         </li>
     </ol>
     <script>
@@ -38,7 +52,7 @@
                 });
             }).catch(function (err) {
                 console.log(err);
-                alert("ERROR");
+                document.querySelector('.get-printers-error-message').style.display = 'block';
             });
         }
 
@@ -49,6 +63,7 @@
                 var printer = printers[i];
                 html += '<option>' + printer.Name + '</option>';
             }
+            document.querySelector('.get-printers-error-message').style.display = 'none';
             document.querySelector('select.printers').innerHTML = html;
         }
 
