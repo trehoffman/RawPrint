@@ -14,12 +14,18 @@ namespace RawPrint
         /// </summary>
         static void Main()
         {
-            ServiceBase[] ServicesToRun;
-            ServicesToRun = new ServiceBase[]
-            {
-                new PrinterService()
-            };
-            ServiceBase.Run(ServicesToRun);
+            #if DEBUG
+                var printerService = new PrinterService();
+                printerService.onDebug();
+                System.Threading.Thread.Sleep(System.Threading.Timeout.Infinite);
+            #else
+                ServiceBase[] ServicesToRun;
+                ServicesToRun = new ServiceBase[]
+                {
+                    new PrinterService()
+                };
+                ServiceBase.Run(ServicesToRun);
+            #endif
         }
     }
 }

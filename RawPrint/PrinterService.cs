@@ -1,8 +1,10 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
+using System.Dynamic;
 using System.Linq;
 using System.Management;
 using System.Net;
@@ -36,23 +38,26 @@ namespace RawPrint
             ws.Stop();
         }
 
+        public void onDebug()
+        {
+            OnStart(null);
+        }
+
         public static string SendResponse(HttpListenerRequest request)
         {
             string printer_name = "";
             string print_data = "";
-            string querystring = "";
 
             foreach (string key in request.QueryString.Keys)
             {
                 var values = request.QueryString.GetValues(key);
                 foreach (string value in values)
                 {
-                    //querystring += "{ \"key\": \"" + value + "\" }";
-                    if (key == "p")
+                    if (key == "p" || key == "printer")
                     {
                         printer_name = value;
                     }
-                    else if (key == "d")
+                    else if (key == "d" || key == "data")
                     {
                         print_data = value;
                     }
@@ -61,7 +66,6 @@ namespace RawPrint
 
             if (printer_name.Length > 0)
             {
-                //send data to printer
                 bool success = RawPrinterHelper.SendStringToPrinter(printer_name, print_data);
                 if (success)
                 {
@@ -72,27 +76,33 @@ namespace RawPrint
                     return "ERROR SENDING DATA TO PRINTER";
                 }
             }
-            
+
             return GetPrinters();
         }
 
         private static string GetPrinters()
         {
-            List<string> printers = new List<string>();
-            ManagementScope objScope = new ManagementScope(ManagementPath.DefaultPath); //For the local Access
-            objScope.Connect();
-
-            SelectQuery selectQuery = new SelectQuery();
-            selectQuery.QueryString = "Select * from win32_Printer";
-            ManagementObjectSearcher MOS = new ManagementObjectSearcher(objScope, selectQuery);
-            ManagementObjectCollection MOC = MOS.Get();
-            foreach (ManagementObject mo in MOC)
+            try
             {
-                //printers.Add(mo["Name"].ToString());
-                printers.Add("{ \"Name\": \"" + mo["Name"].ToString() + "\" }");
-            }
+                var printers = new List<dynamic>();
+                var objScope = new ManagementScope(ManagementPath.DefaultPath); //For the local Access
+                objScope.Connect();
 
-            return "[" + string.Join(",", printers) + "]";
+                var selectQuery = new SelectQuery();
+                selectQuery.QueryString = "Select * from win32_Printer";
+                var MOS = new ManagementObjectSearcher(objScope, selectQuery);
+                var MOC = MOS.Get();
+                foreach (var mo in MOC)
+                {
+                    printers.Add(new { Name = mo["Name"].ToString() });
+                }
+
+                return JsonConvert.SerializeObject(printers);
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
         }
     }
 }

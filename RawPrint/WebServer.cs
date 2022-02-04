@@ -64,6 +64,8 @@ namespace RawPrint
                                     return;
                                 }
 
+                                if (ctx.Request.HttpMethod == "OPTIONS") return;
+
                                 var rstr = _responderMethod(ctx.Request);
                                 var buf = Encoding.UTF8.GetBytes(rstr);
                                 ctx.Response.AppendHeader("Access-Control-Allow-Origin", "*");
