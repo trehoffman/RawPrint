@@ -5,9 +5,11 @@ using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using System.Dynamic;
+using System.IO;
 using System.Linq;
 using System.Management;
 using System.Net;
+using System.Net.Http;
 using System.Net.Sockets;
 using System.ServiceProcess;
 using System.Text;
@@ -45,39 +47,56 @@ namespace RawPrint
 
         public static string SendResponse(HttpListenerRequest request)
         {
-            string printer_name = "";
-            string print_data = "";
-
-            foreach (string key in request.QueryString.Keys)
+            try
             {
-                var values = request.QueryString.GetValues(key);
-                foreach (string value in values)
+                string printer_name = "";
+                string print_data = "";
+
+                if (request.HttpMethod == "GET")
                 {
-                    if (key == "p" || key == "printer")
+                    foreach (string key in request.QueryString.Keys)
                     {
-                        printer_name = value;
-                    }
-                    else if (key == "d" || key == "data")
-                    {
-                        print_data = value;
+                        var values = request.QueryString.GetValues(key);
+                        foreach (string value in values)
+                        {
+                            if (key == "p" || key == "printer")
+                            {
+                                printer_name = value;
+                            }
+                            else if (key == "d" || key == "data")
+                            {
+                                print_data = value;
+                            }
+                        }
                     }
                 }
-            }
+                if (request.HttpMethod == "POST")
+                {
+                    string json = new StreamReader(request.InputStream).ReadToEnd();
+                    dynamic body = JsonConvert.DeserializeObject(json);
+                    printer_name = (body.printer == null ? "" : (string)body.printer);
+                    print_data = (body.data == null ? "" : (string)body.data);
+                }
 
-            if (printer_name.Length > 0)
+                if (printer_name.Length > 0)
+                {
+                    if (print_data.Length == 0) throw new Exception("NO PRINT DATA PROVIDED");
+                    if (RawPrinterHelper.SendStringToPrinter(printer_name, print_data))
+                    {
+                        return JsonConvert.SerializeObject(new { printer = printer_name, data = print_data });
+                    }
+                    else
+                    {
+                        throw new Exception("ERROR SENDING DATA TO PRINTER");
+                    }
+                }
+
+                return GetPrinters();
+            }
+            catch (Exception ex)
             {
-                bool success = RawPrinterHelper.SendStringToPrinter(printer_name, print_data);
-                if (success)
-                {
-                    return print_data;
-                }
-                else
-                {
-                    return "ERROR SENDING DATA TO PRINTER";
-                }
+                return JsonConvert.SerializeObject(new { error = ex.Message });
             }
-
-            return GetPrinters();
         }
 
         private static string GetPrinters()
@@ -101,7 +120,7 @@ namespace RawPrint
             }
             catch (Exception ex)
             {
-                return ex.ToString();
+                return JsonConvert.SerializeObject(new { error = ex.Message });
             }
         }
     }
