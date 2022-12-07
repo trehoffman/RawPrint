@@ -21,7 +21,7 @@ namespace RawPrint
 {
     public partial class PrinterService : ServiceBase
     {
-        public static string BASE_URL = ConfigurationManager.AppSettings["Base URL"];
+        public static string BASE_ADDRESS = ConfigurationManager.AppSettings["Base Address"];
         public static string PORT = ConfigurationManager.AppSettings["Port"];
         WebServer ws;
 
@@ -32,7 +32,7 @@ namespace RawPrint
 
         protected override void OnStart(string[] args)
         {
-            string baseUrl = BASE_URL + ":" + PORT + "/";
+            string baseUrl = BASE_ADDRESS + ":" + PORT + "/";
             ws = new WebServer(SendResponse, baseUrl);
             ws.Run();
         }
