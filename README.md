@@ -28,3 +28,33 @@ body:
   "data": "rawdata"
 }
 ```
+
+## Configuration Instructions
+
+1.  Go to folder of RAW Print install.  Might be:
+
+  ```
+  C:\Program Files (x86)\TreHoffman Technologies\RAW Print
+  ```
+
+2.  Edit key values in RawPrint.exe.config file:
+
+  ```
+  <?xml version="1.0" encoding="utf-8" ?>
+  <configuration>
+      <startup> 
+          <supportedRuntime version="v4.0" sku=".NETFramework,Version=v4.5.2" />
+      </startup>
+    <appSettings>
+      <add key="Base Address" value="http://127.0.0.1"/>
+      <add key="Port" value="9100"/>
+    </appSettings>
+  </configuration>
+  ```
+
+3.  Restart RAW Print Windows Service via "Services" GUI or run the following commands in a Windows Terminal:
+
+  ```
+  net stop "RAW Print"
+  net start "RAW Print"
+  ```
