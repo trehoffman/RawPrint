@@ -26,8 +26,12 @@
             <a href="https://github.com/trehoffman/RawPrint/releases">Download</a> & Install RAW Print
         </li>
         <li>
+            Modify address if necessary
+            <input name="address" class="w3-input" value="http://localhost:9100"/>
+        </li>
+        <li>
             Select Printer <button type="button" class="w3-button" onclick="getPrinters();">Refresh</button>
-            <div class="get-printers-error-message">Error retrieving local printers.  RAW Print might not be installed or running.</div>
+            <div class="get-printers-error-message">Error retrieving local printers.  RAW Print might not be installed or running or your address is incorrect.</div>
             <select class="printers w3-select w3-border"></select>
         </li>
         <li>
@@ -45,15 +49,17 @@
     <script>
         var printers = [];
 
-        function getPrinters() {
-            fetch('http://localhost:9100').then(function (res) {
-                res.json().then(function (p) {
-                    setPrinters(p);
-                });
-            }).catch(function (err) {
-                console.log(err);
+        async function getPrinters() {
+            try {
+                let address = document.querySelector('input[name=address]').value.trim();
+                if (address.length === 0) throw 'enter an address for RAW Print';
+                let response = await fetch(address);
+                let result = await response.json();
+                setPrinters(result);
+            } catch (error) {
+                console.log(error);
                 document.querySelector('.get-printers-error-message').style.display = 'block';
-            });
+            }
         }
 
         function setPrinters(p) {
@@ -67,16 +73,25 @@
             document.querySelector('select.printers').innerHTML = html;
         }
 
-        function send() {
-            var printer = document.querySelector('select.printers').value;
-            var printer_data = document.querySelector('textarea.print-data').value;
-            var url = 'http://localhost:9100?p=' + printer + '&d=' + printer_data;
-            fetch(url).then(function (res) {
+        async function send() {
+            try {
+                let address = document.querySelector('input[name=address]').value.trim();
+                let printer = document.querySelector('select.printers').value;
+                let printer_data = document.querySelector('textarea.print-data').value;
+                let response = await fetch(address, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        printer: printer,
+                        data: printer_data
+                    })
+                });
+                let result = await response.json();
+                console.log('result', result);
                 alert('Data Sent\n\nPrinter: ' + printer + '\n\nData:' + printer_data);
-            }).catch(function (err) {
-                console.log(err);
-                alert("ERROR");
-            });
+            } catch (error) {
+                console.log(error);
+                alert(error);
+            }
         }
 
         document.querySelectorAll('button.sample-data').forEach(function (elem) {
