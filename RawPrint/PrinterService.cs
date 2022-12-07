@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Configuration;
 using System.Data;
 using System.Diagnostics;
 using System.Dynamic;
@@ -20,8 +21,8 @@ namespace RawPrint
 {
     public partial class PrinterService : ServiceBase
     {
-        public static string SERVER_IP = "127.0.0.1";
-        public static int PORT_NO = 9100;
+        public static string BASE_URL = ConfigurationManager.AppSettings["Base URL"];
+        public static string PORT = ConfigurationManager.AppSettings["Port"];
         WebServer ws;
 
         public PrinterService()
@@ -31,7 +32,8 @@ namespace RawPrint
 
         protected override void OnStart(string[] args)
         {
-            ws = new WebServer(SendResponse, "http://localhost:9100/");
+            string baseUrl = BASE_URL + ":" + PORT + "/";
+            ws = new WebServer(SendResponse, baseUrl);
             ws.Run();
         }
 
@@ -95,6 +97,7 @@ namespace RawPrint
             }
             catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine(ex.ToString());
                 return JsonConvert.SerializeObject(new { error = ex.Message });
             }
         }
